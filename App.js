@@ -5,6 +5,15 @@
 import React, {useEffect, useState} from 'react';
 import {Button, Text, View} from 'react-native';
 import auth from '@react-native-firebase/auth';
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+} from '@react-native-community/google-signin';
+
+GoogleSignin.configure({
+  webClientId:
+    '598577778972-4ufvj95p2qfghpp6lnsdu3l9l2gjspq0.apps.googleusercontent.com',
+});
 
 class App extends React.Component {
   componentDidMount() {
@@ -64,6 +73,16 @@ class App extends React.Component {
       .then(() => console.log('User signed out!'));
   };
 
+  onGoogleButtonPress = async () => {
+    // Get the users ID token
+    const {idToken} = await GoogleSignin.signIn();
+    // Create a Google credential with the token
+    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+    // Sign-in the user with the credential
+    return auth().signInWithCredential(googleCredential);
+  };
+
   render() {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -71,6 +90,16 @@ class App extends React.Component {
         <Button title={'Create User'} onPress={this.createUser} />
         <Button title={'Login'} onPress={this.login} />
         <Button title={'Logout'} onPress={this.Logout} />
+        <GoogleSigninButton
+          style={{width: 192, height: 48}}
+          size={GoogleSigninButton.Size.Wide}
+          color={GoogleSigninButton.Color.Dark}
+          onPress={() =>
+            this.onGoogleButtonPress().then(() =>
+              console.log('Signed in with Google!'),
+            )
+          }
+        />
       </View>
     );
   }
